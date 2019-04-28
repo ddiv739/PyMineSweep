@@ -11,14 +11,26 @@ class GameBoard:
     #tiles which provides information to player
     TYPE_MINE = -1
     TYPE_EMPTY = 0
+
+    #Visibility
+    VIS_UNKNOWN = 1
+    VIS_FLAGGED = 2
+    VIS_EXPOSED = 0
+
+    #State
+    GAME_STARTING = 0
+    GAME_RUNNING = 1
+    GAME_OVER = 2
     
     def __init__(self, width, height):
         self.width = width
         self.height = height
+        self.gamestate = 0
+
         self.mines = (width*height)/6.25
         self.__gameboard = [[0 for x in range(width)] for y in range(height)] 
-        self.__visibilityboard = [[ False for x in range(width)] for y in range(height)] 
-
+        self.__visibilityboard = [[ 1 for x in range(width)] for y in range(height)] 
+        
         mine_count = int(self.mines)
 
         print("Creating a 16 x 16 board with " + str(mine_count)+ " mines")
@@ -33,9 +45,8 @@ class GameBoard:
             #form adjacencies
             self.incrementAdjacentTiles(row,col)
 
-        
-
-        self.printBoardStatus()
+        self.printDebugBoard()
+        self.gamestate = self.GAME_RUNNING
 
     def incrementAdjacentTiles(self, row, col):
          
@@ -62,13 +73,14 @@ class GameBoard:
         if(self.__gameboard[row][col] != -1):
             self.__gameboard[row][col] += 1
 
-    def printBoardStatus(self):
+    def printDebugBoard(self):
         for row in self.__gameboard:
             x = "["
             for col in row:
                 if col == self.TYPE_MINE:
                     x += "*"
                 elif col == self.TYPE_EMPTY:
+                    #Change to whitespace later
                     x += "0"
                 else :
                     x += str(col)
@@ -76,3 +88,73 @@ class GameBoard:
             x = x.rstrip(", ")
             x += "]"
             print(x)
+
+    def printGameBoard(self):
+        for row in range(0,self.height):
+            x = "["
+            for col in range(0,self.width):
+                if(self.__visibilityboard[row][col] == self.VIS_UNKNOWN):
+                    x += '?'
+                elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
+                    x += 'F'
+                else:
+                    x += str(self.__gameboard[row][col])
+                x+=' , '
+            x = x.rstrip(", ")
+            x += "]"
+            print(x)
+
+
+
+    def userInput(self, row, col):
+        try:
+            if(self.__gameboard[row][col] == self.TYPE_MINE):
+                self.gameOver()
+            elif(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
+                pass
+            else:
+                print("asdf")
+                self.exposeTile(row,col,True)
+
+        except IndexError as e:
+            print("Input out of bounds, try again")
+            pass
+
+    def exposeTile(self,row,col,isFirst=False):
+        print("exposing " + str(row) + "," + str(col))
+        try:
+            if( self.__visibilityboard[row][col] == self.VIS_EXPOSED):
+                return
+            if(isFirst):
+                self.__visibilityboard[row][col] = self.VIS_EXPOSED
+                if(self.__gameboard[row][col] == self.TYPE_EMPTY):
+                    self.exposeTile(row+1,col)
+                    self.exposeTile(row-1,col)
+                    self.exposeTile(row,col+1)
+                    self.exposeTile(row,col-1)
+                return
+            else:
+                if(self.__gameboard[row][col] == self.TYPE_EMPTY):
+                    self.__visibilityboard[row][col] = self.VIS_EXPOSED
+                    self.exposeTile(row+1,col)
+                    self.exposeTile(row-1,col)
+                    self.exposeTile(row,col+1)
+                    self.exposeTile(row,col-1)
+                return
+        except IndexError as e:
+            print("Input out of bounds, try again")
+            pass
+
+    def setFlag(self,row,col):
+        try:
+            self.__visibilityboard[row][col] = self.VIS_FLAGGED
+        except IndexError as e:
+            print("Input out of bounds, try again")
+            pass
+
+    def gameOver(self) :
+        #Set visibility of all
+        self.__visibilityboard = [[ 0 for x in range(self.width)] for y in range(self.height)] 
+
+        #Set game state as finished
+        self.gamestate = self.GAME_OVER
