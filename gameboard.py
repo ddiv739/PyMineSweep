@@ -113,33 +113,30 @@ class GameBoard:
             elif(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
                 pass
             else:
-                self.exposeTile(row,col,True)
+                self.exposeTile(row,col)
 
         except IndexError as e:
             pass
 
-    def exposeTile(self,row,col,isFirst=False):
+    def exposeTile(self,row,col):
         if( not (0<=row<self.width) or not (0<=col<self.height)):
             return
         if( self.__visibilityboard[row][col] == self.VIS_EXPOSED):
             return
-        if(isFirst):
-            self.__visibilityboard[row][col] = self.VIS_EXPOSED
-            if(self.__gameboard[row][col] == self.TYPE_EMPTY):
-                self.exposeTile(row+1,col)
-                self.exposeTile(row-1,col)
-                self.exposeTile(row,col+1)
-                self.exposeTile(row,col-1)
-            return
-        else:
-            if(self.__gameboard[row][col] == self.TYPE_EMPTY):
-                self.__visibilityboard[row][col] = self.VIS_EXPOSED
-                self.exposeTile(row+1,col)
-                self.exposeTile(row-1,col)
-                self.exposeTile(row,col+1)
-                self.exposeTile(row,col-1)
-            return
 
+        self.__visibilityboard[row][col] = self.VIS_EXPOSED
+        if(self.__gameboard[row][col] == self.TYPE_EMPTY):
+            self.exposeTile(row+1,col)
+            self.exposeTile(row-1,col)
+            self.exposeTile(row,col+1)
+            self.exposeTile(row,col-1)
+            self.exposeTile(row+1,col+1)
+            self.exposeTile(row+1,col-1)
+            self.exposeTile(row-1,col+1)
+            self.exposeTile(row-1,col-1)
+        return
+
+       
 
     def setFlag(self,row,col):
         try:
