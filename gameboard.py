@@ -45,7 +45,7 @@ class GameBoard:
             #form adjacencies
             self.incrementAdjacentTiles(row,col)
 
-        self.printDebugBoard()
+        # self.printDebugBoard()
         self.gamestate = self.GAME_RUNNING
 
     def incrementAdjacentTiles(self, row, col):
@@ -113,43 +113,38 @@ class GameBoard:
             elif(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
                 pass
             else:
-                print("asdf")
                 self.exposeTile(row,col,True)
 
         except IndexError as e:
-            print("Input out of bounds, try again")
             pass
 
     def exposeTile(self,row,col,isFirst=False):
-        print("exposing " + str(row) + "," + str(col))
-        try:
-            if( self.__visibilityboard[row][col] == self.VIS_EXPOSED):
-                return
-            if(isFirst):
+        if( not (0<=row<self.width) or not (0<=col<self.height)):
+            return
+        if( self.__visibilityboard[row][col] == self.VIS_EXPOSED):
+            return
+        if(isFirst):
+            self.__visibilityboard[row][col] = self.VIS_EXPOSED
+            if(self.__gameboard[row][col] == self.TYPE_EMPTY):
+                self.exposeTile(row+1,col)
+                self.exposeTile(row-1,col)
+                self.exposeTile(row,col+1)
+                self.exposeTile(row,col-1)
+            return
+        else:
+            if(self.__gameboard[row][col] == self.TYPE_EMPTY):
                 self.__visibilityboard[row][col] = self.VIS_EXPOSED
-                if(self.__gameboard[row][col] == self.TYPE_EMPTY):
-                    self.exposeTile(row+1,col)
-                    self.exposeTile(row-1,col)
-                    self.exposeTile(row,col+1)
-                    self.exposeTile(row,col-1)
-                return
-            else:
-                if(self.__gameboard[row][col] == self.TYPE_EMPTY):
-                    self.__visibilityboard[row][col] = self.VIS_EXPOSED
-                    self.exposeTile(row+1,col)
-                    self.exposeTile(row-1,col)
-                    self.exposeTile(row,col+1)
-                    self.exposeTile(row,col-1)
-                return
-        except IndexError as e:
-            print("Input out of bounds, try again")
-            pass
+                self.exposeTile(row+1,col)
+                self.exposeTile(row-1,col)
+                self.exposeTile(row,col+1)
+                self.exposeTile(row,col-1)
+            return
+
 
     def setFlag(self,row,col):
         try:
             self.__visibilityboard[row][col] = self.VIS_FLAGGED
         except IndexError as e:
-            print("Input out of bounds, try again")
             pass
 
     def gameOver(self) :
