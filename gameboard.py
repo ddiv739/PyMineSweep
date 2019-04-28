@@ -1,12 +1,14 @@
 from pprint import pprint
 from random import randint
+import PySimpleGUI as sg
+
 class GameBoard:
     width = None
     height = None
     __gameboard = None
     __visibilityboard = None
     mines = None
-
+    remaining_tiles = None
     #3 types of pieces. Mines which are game over. Empties which flood fill and have no discernable display. And numerical 
     #tiles which provides information to player
     TYPE_MINE = -1
@@ -21,13 +23,16 @@ class GameBoard:
     GAME_STARTING = 0
     GAME_RUNNING = 1
     GAME_OVER = 2
-    
+    GAME_WIN = 3
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.gamestate = 0
 
         self.mines = (width*height)/6.25
+        self.remaining_tiles = self.width * self.height - self.mines
+
         self.__gameboard = [[0 for x in range(width)] for y in range(height)] 
         self.__visibilityboard = [[ 1 for x in range(width)] for y in range(height)] 
         
@@ -104,14 +109,31 @@ class GameBoard:
             x += "]"
             print(x)
 
+    def getGameBoard(self):
+        y= []
+        for row in range(0,self.height):
+            x = []
+            for col in range(0,self.width):
+                if(self.__visibilityboard[row][col] == self.VIS_UNKNOWN):
+                    x.append(sg.Button('?',button_color=('white', 'black'), key=str(row)+','+str(col)))
+                elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
+                    x.append(sg.Button('F',button_color=('white', 'black'), key=str(row)+','+str(col)))
+                else:
+                    x.append(sg.Button(str(self.__gameboard[row][col]),button_color=('white', 'black'),disabled=True))
+            y.append(x)
+        
+        return y
 
 
     def userInput(self, row, col):
+        self.checkWinCondition()
         try:
             if(self.__gameboard[row][col] == self.TYPE_MINE):
                 self.gameOver()
             elif(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
                 pass
+            elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
+                print("You may not expose a flagged space. Use the f command on this space again to unflag it")
             else:
                 self.exposeTile(row,col)
 
@@ -125,6 +147,8 @@ class GameBoard:
             return
 
         self.__visibilityboard[row][col] = self.VIS_EXPOSED
+        self.remaining_tiles -= 1
+
         if(self.__gameboard[row][col] == self.TYPE_EMPTY):
             self.exposeTile(row+1,col)
             self.exposeTile(row-1,col)
@@ -143,6 +167,10 @@ class GameBoard:
             self.__visibilityboard[row][col] = self.VIS_FLAGGED
         except IndexError as e:
             pass
+
+    def checkWinCondition(self):
+        if(self.remaining_tiles <=0):
+            self.gamestate = self.GAME_WIN
 
     def gameOver(self) :
         #Set visibility of all
