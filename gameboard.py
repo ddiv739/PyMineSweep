@@ -31,8 +31,9 @@ class GameBoard:
         self.gamestate = 0
         self.FlagMode = False
         self.flagbutton = sg.Checkbox('Flag Mode', default=False, background_color="#404040",text_color="white")
-        self.mines = (width*height)/6.25
-        self.remaining_tiles = self.width * self.height - self.mines
+        #Floor // in order to cast down to prevent float errors in checking win conditions
+        self.mines = (width*height)//6.25
+        self.remaining_tiles = int(self.width * self.height - self.mines)
 
         self.__gameboard = [[0 for x in range(width)] for y in range(height)] 
         self.__visibilityboard = [[ 1 for x in range(width)] for y in range(height)] 
@@ -111,7 +112,9 @@ class GameBoard:
             print(x)
 
     def getGameBoard(self):
-        y= [[sg.Text('Minesweeper')],[sg.Text("Current Count: TODO")],[self.flagbutton]]
+        y= [[sg.Text('Minesweeper')],
+        [sg.Button('Reset',size=(4,1), button_color=('white', 'black'), key="Reset")],
+        [self.flagbutton]]
         for row in range(0,self.height):
             x = []
             for col in range(0,self.width):
@@ -156,7 +159,7 @@ class GameBoard:
 
         self.__visibilityboard[row][col] = self.VIS_EXPOSED
         self.remaining_tiles -= 1
-
+        print(self.remaining_tiles)
         if(self.__gameboard[row][col] == self.TYPE_EMPTY):
             self.exposeTile(row+1,col)
             self.exposeTile(row-1,col)
