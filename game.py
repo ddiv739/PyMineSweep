@@ -1,4 +1,4 @@
 from gameboard import GameBoard
 
-x=GameBoard(5,5)
+x=GameBoard(8,8)
 
