@@ -5,28 +5,13 @@ import PySimpleGUI as sg
 
 
 if __name__ == "__main__":
-    """      
-    Demonstrates using a "tight" layout with a Dark theme.      
-    Shows how button states can be controlled by a user application.  The program manages the disabled/enabled      
-    states for buttons and changes the text color to show greyed-out (disabled) buttons      
-    """      
-
-
 
     print("Starting game")  
-    gb = GameBoard(8,8)
+    gb = GameBoard(16,16)
     gb.printGameBoard()
-
 
     sg.ChangeLookAndFeel('Dark')      
     sg.SetOptions(element_padding=(0,0))      
-
-    layout = [[sg.Text('Minesweeper')],     
-              [sg.Button('f', button_color=('white', 'black'), key='Start'),      
-               sg.Button('s', button_color=('white', 'black'), key='Stop'),      
-               sg.Button('?', button_color=('white', 'firebrick3'), key='Reset'),      
-               sg.Button('3', button_color=('white', 'springgreen4'), key='Submit')]      
-              ]    
 
     layout = gb.getGameBoard()
 
@@ -64,14 +49,14 @@ if __name__ == "__main__":
         for row in range(0,gb.height):
             for col in range(0,gb.width):
                 try:
+                    if(window.FindElement(str(row)+','+str(col)).GetText() == "F"):
+                        window.FindElement(str(row)+','+str(col)).Update("?")
                     if(new_board[row+3][col].GetText() != "?"):
                         if(new_board[row+3][col].GetText() != "F"):
                             window.FindElement(str(row)+','+str(col)).Update(disabled=True)
                         
                         window.FindElement(str(row)+','+str(col)).Update(new_board[row+3][col].GetText())
-                    else:
-                        if(window.FindElement(str(row)+','+str(col)).GetText() == "F"):
-                            window.FindElement(str(row)+','+str(col)).Update("?")
+
                 except AttributeError as e:
                     #We need to catch and pass over non button elements
                     pass
