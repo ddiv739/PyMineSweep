@@ -29,7 +29,8 @@ class GameBoard:
         self.width = width
         self.height = height
         self.gamestate = 0
-
+        self.FlagMode = False
+        self.flagbutton = sg.Checkbox('Flag Mode', default=False, background_color="#404040",text_color="white")
         self.mines = (width*height)/6.25
         self.remaining_tiles = self.width * self.height - self.mines
 
@@ -110,14 +111,14 @@ class GameBoard:
             print(x)
 
     def getGameBoard(self):
-        y= []
+        y= [[sg.Text('Minesweeper')],[sg.Text("Current Count: TODO")],[self.flagbutton]]
         for row in range(0,self.height):
             x = []
             for col in range(0,self.width):
                 if(self.__visibilityboard[row][col] == self.VIS_UNKNOWN):
                     x.append(sg.Button('?',button_color=('white', 'black'), key=str(row)+','+str(col)))
                 elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
-                    x.append(sg.Button('F',button_color=('white', 'black'), key=str(row)+','+str(col)))
+                    x.append(sg.Button('F',button_color=('white', 'red'), key=str(row)+','+str(col)))
                 else:
                     x.append(sg.Button(str(self.__gameboard[row][col]),button_color=('white', 'black'),disabled=True))
             y.append(x)
@@ -127,13 +128,20 @@ class GameBoard:
 
     def userInput(self, row, col):
         self.checkWinCondition()
+        self.FlagMode = self.flagbutton.Get()
         try:
-            if(self.__gameboard[row][col] == self.TYPE_MINE):
-                self.gameOver()
-            elif(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
+            if(self.FlagMode == True):
+                self.setFlag(row,col)
+                return
+
+
+            if(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
                 pass
             elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
                 print("You may not expose a flagged space. Use the f command on this space again to unflag it")
+                return
+            elif(self.__gameboard[row][col] == self.TYPE_MINE):
+                self.gameOver()
             else:
                 self.exposeTile(row,col)
 
@@ -164,7 +172,10 @@ class GameBoard:
 
     def setFlag(self,row,col):
         try:
-            self.__visibilityboard[row][col] = self.VIS_FLAGGED
+            if(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
+                self.__visibilityboard[row][col] = self.VIS_UNKNOWN
+            else:
+                self.__visibilityboard[row][col] = self.VIS_FLAGGED
         except IndexError as e:
             pass
 

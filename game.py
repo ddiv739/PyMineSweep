@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 
     print("Starting game")  
-    gb = GameBoard(16,16)
+    gb = GameBoard(8,8)
     gb.printGameBoard()
 
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
         if(event == None):
             break     
-        print(event)      
+        # print(event)      
         x = event.split(',')
         
         if(len(x) < 2 or len(x)>3):
@@ -55,14 +55,26 @@ if __name__ == "__main__":
             row,col = x
         else:
             row,col,F = x
+        
+        
         gb.userInput(int(row),int(col))
         gb.printGameBoard()
 
         new_board = gb.getGameBoard()
         for row in range(0,gb.height):
             for col in range(0,gb.width):
-                if(new_board[row][col].GetText() != "?"):
-                    window.FindElement(str(row)+','+str(col)).Update(new_board[row][col].GetText(),disabled=True)
+                try:
+                    if(new_board[row+3][col].GetText() != "?"):
+                        if(new_board[row+3][col].GetText() != "F"):
+                            window.FindElement(str(row)+','+str(col)).Update(disabled=True)
+                        
+                        window.FindElement(str(row)+','+str(col)).Update(new_board[row+3][col].GetText())
+                    else:
+                        if(window.FindElement(str(row)+','+str(col)).GetText() == "F"):
+                            window.FindElement(str(row)+','+str(col)).Update("?")
+                except AttributeError as e:
+                    #We need to catch and pass over non button elements
+                    pass
                 
         
         window.Refresh()
