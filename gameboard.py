@@ -26,6 +26,15 @@ class GameBoard:
     GAME_OVER = 2
     GAME_WIN = 3
 
+    #Reinforcement agent scores TODO move to unified file for agent and board
+    REWARD_WIN = 750
+    REWARD_FLAG_MINE = 50
+    REWARD_CLEARED_TILE = 5
+
+    PENALTY_MOVE = -1
+    PENALTY_LOSS = -250
+    PENALTY_FALSE_FLAG = -20
+
     def __init__(self, width, height, isVisual=False):
         self.width = width
         self.height = height
@@ -136,48 +145,54 @@ class GameBoard:
 
 
     def userInput(self, row, col,flagMode=False):
+        #Score relates to reinforcement agent and its training
         if(self.isVisual):
             self.FlagMode = self.flagbutton.Get()
         else :
             self.FlagMode = flagMode
         try:
             if(self.FlagMode ):
-                self.setFlag(row,col)
-                return
+                return self.setFlag(row,col)
 
 
             if(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
-                pass
+                return self.PENALTY_MOVE
             elif(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
                 print("You may not expose a flagged space. Use the f command on this space again to unflag it")
-                return
+                return self.PENALTY_MOVE
             elif(self.__gameboard[row][col] == self.TYPE_MINE):
                 self.gameOver()
+                return self.PENALTY_LOSS
             else:
-                self.exposeTile(row,col)
-                self.checkWinCondition()
+                exposing_score = self.exposeTile(row,col)
+                if(self.checkWinCondition()):
+                    return self.REWARD_WIN + exposing_score
+                
+                return exposing_score
 
         except IndexError as e:
-            pass
+            return self.PENALTY_MOVE
 
-    def exposeTile(self,row,col):
+    def exposeTile(self,row,col, score=0):
         if( not (0<=row<self.width) or not (0<=col<self.height)):
-            return
+            return 0
         if( self.__visibilityboard[row][col] == self.VIS_EXPOSED):
-            return
+            return 0
 
         self.__visibilityboard[row][col] = self.VIS_EXPOSED
+        score += self.REWARD_CLEARED_TILE
         self.remaining_tiles -= 1
         if(self.__gameboard[row][col] == self.TYPE_EMPTY):
-            self.exposeTile(row+1,col)
-            self.exposeTile(row-1,col)
-            self.exposeTile(row,col+1)
-            self.exposeTile(row,col-1)
-            self.exposeTile(row+1,col+1)
-            self.exposeTile(row+1,col-1)
-            self.exposeTile(row-1,col+1)
-            self.exposeTile(row-1,col-1)
-        return
+            score += self.exposeTile(row+1,col)
+            score += self.exposeTile(row-1,col)
+            score += self.exposeTile(row,col+1)
+            score += self.exposeTile(row,col-1)
+            score += self.exposeTile(row+1,col+1)
+            score += self.exposeTile(row+1,col-1)
+            score +=  self.exposeTile(row-1,col+1)
+            score += self.exposeTile(row-1,col-1)
+
+        return score
 
        
 
@@ -185,10 +200,15 @@ class GameBoard:
         try:
             if(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
                 self.__visibilityboard[row][col] = self.VIS_UNKNOWN
+                return self.PENALTY_MOVE
             else:
                 self.__visibilityboard[row][col] = self.VIS_FLAGGED
+                if(self.__gameboard[row][col] == self.TYPE_MINE):
+                    return self.REWARD_FLAG_MINE
+                else:
+                    return self.PENALTY_FALSE_FLAG
         except IndexError as e:
-            pass
+            return self.PENALTY_MOVE
 
     def checkWinCondition(self):
         if(self.remaining_tiles <=0):
