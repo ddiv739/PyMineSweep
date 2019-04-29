@@ -62,7 +62,10 @@ if __name__ == "__main__":
             
             
             gb.userInput(int(row),int(col))
-
+            if(gb.gamestate == gb.GAME_WIN):
+                print("YOU WIN!!!")
+            elif(gb.gamestate == gb.GAME_OVER):
+                print("YOU LOSE :(")
             new_board = gb.getGameBoard()
             for row in range(0,gb.height):
                 for col in range(0,gb.width):
@@ -79,16 +82,12 @@ if __name__ == "__main__":
                         #We need to catch and pass over non button elements
                         pass
                     
-            
+
             window.Refresh()
 
     window.Close()
 
-    if(gb.gamestate == gb.GAME_WIN):
-        print("YOU WIN!!!")
-    else:
-        print("YOU LOSE :(")
-    gb.printDebugBoard()
+
 
 
     # while(gb.gamestate == gb.GAME_RUNNING):

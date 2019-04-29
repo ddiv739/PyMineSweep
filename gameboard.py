@@ -130,7 +130,6 @@ class GameBoard:
 
 
     def userInput(self, row, col):
-        self.checkWinCondition()
         self.FlagMode = self.flagbutton.Get()
         try:
             if(self.FlagMode == True):
@@ -147,6 +146,7 @@ class GameBoard:
                 self.gameOver()
             else:
                 self.exposeTile(row,col)
+                self.checkWinCondition()
 
         except IndexError as e:
             pass
@@ -159,7 +159,6 @@ class GameBoard:
 
         self.__visibilityboard[row][col] = self.VIS_EXPOSED
         self.remaining_tiles -= 1
-        print(self.remaining_tiles)
         if(self.__gameboard[row][col] == self.TYPE_EMPTY):
             self.exposeTile(row+1,col)
             self.exposeTile(row-1,col)
