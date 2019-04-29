@@ -6,7 +6,7 @@ import PySimpleGUI as sg
 if __name__ == "__main__":
 
     print("Starting game")  
-    gb = GameBoard(8,8)
+    gb = GameBoard(16,16)
     gb.printGameBoard()
 
     sg.ChangeLookAndFeel('Dark')      
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     while True:
         
         print("Starting game")  
-        gb = GameBoard(8,8)
+        gb = GameBoard(16,16)
         gb.printGameBoard()
 
         sg.ChangeLookAndFeel('Dark')      
