@@ -3,20 +3,11 @@ from flask import Flask
 import PySimpleGUI as sg
 
 
-if __name__ == "__main__":
-
-    print("Starting game")  
-    gb = GameBoard(16,16)
-    gb.printGameBoard()
-
+def playVisualGame():
     sg.ChangeLookAndFeel('Dark')      
     sg.SetOptions(element_padding=(0,0))      
-
-    layout = gb.getGameBoard()
-
     window = sg.Window("Time Tracker",  auto_size_text=False, auto_size_buttons=False,      
                        default_button_element_size=(2,1))      
-    window.Layout(layout)      
     
     recording = have_data = False 
     while True:
@@ -87,29 +78,37 @@ if __name__ == "__main__":
 
     window.Close()
 
+if __name__ == "__main__":
+
+    print("Starting game")  
+    gb = GameBoard(16,16)
+    gb.printGameBoard()
+
+    # playVisualGame()
 
 
 
-    # while(gb.gamestate == gb.GAME_RUNNING):
-    #     print("Please input your command in the following format: [row,col,flag(optional)]. Parenthesis are not required")
-    #     user_input = input()
-    #     user_input = str(user_input)
-    #     user_input = user_input.strip()
 
-    #     user_input = user_input.lstrip('[')
-    #     user_input = user_input.rstrip(']')
-    #     x = user_input.split(',')
+    while(gb.gamestate == gb.GAME_RUNNING):
+        print("Please input your command in the following format: [row,col,flag(optional)]. Parenthesis are not required")
+        user_input = input()
+        user_input = str(user_input)
+        user_input = user_input.strip()
+
+        user_input = user_input.lstrip('[')
+        user_input = user_input.rstrip(']')
+        x = user_input.split(',')
         
-    #     if(len(x) < 2 or len(x)>3):
-    #         print("Invalid input length")
-    #         continue
+        if(len(x) < 2 or len(x)>3):
+            print("Invalid input length")
+            continue
         
-    #     row = None
-    #     col = None
-    #     F = False
-    #     if(len(x) == 2):
-    #         row,col = x
-    #     else:
-    #         row,col,F = x
-    #     gb.userInput(int(row),int(col))
-    #     gb.printGameBoard()
+        row = None
+        col = None
+        F = False
+        if(len(x) == 2):
+            row,col = x
+        else:
+            row,col,F = x
+        gb.userInput(int(row),int(col))
+        gb.printGameBoard()

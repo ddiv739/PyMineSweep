@@ -3,6 +3,7 @@ from random import randint
 import PySimpleGUI as sg
 
 class GameBoard:
+    isVisual = False
     width = None
     height = None
     __gameboard = None
@@ -25,12 +26,14 @@ class GameBoard:
     GAME_OVER = 2
     GAME_WIN = 3
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, isVisual=False):
         self.width = width
         self.height = height
         self.gamestate = 0
+        self.isVisual = isVisual
         self.FlagMode = False
-        self.flagbutton = sg.Checkbox('Flag Mode', default=False, background_color="#404040",text_color="white")
+        if(self.isVisual):
+            self.flagbutton = sg.Checkbox('Flag Mode', default=False, background_color="#404040",text_color="white")
         #Floor // in order to cast down to prevent float errors in checking win conditions
         self.mines = (width*height)//6.25
         self.remaining_tiles = int(self.width * self.height - self.mines)
@@ -111,7 +114,10 @@ class GameBoard:
             x += "]"
             print(x)
 
+
     def getGameBoard(self):
+        if(not self.isVisual):
+            return "This is not a visual game instance "
         y= [[sg.Text('Minesweeper')],
         [sg.Button('Reset',size=(4,1), button_color=('white', 'black'), key="Reset")],
         [self.flagbutton]]
@@ -129,10 +135,13 @@ class GameBoard:
         return y
 
 
-    def userInput(self, row, col):
-        self.FlagMode = self.flagbutton.Get()
+    def userInput(self, row, col,flagMode=False):
+        if(self.isVisual):
+            self.FlagMode = self.flagbutton.Get()
+        else :
+            self.FlagMode = flagMode
         try:
-            if(self.FlagMode == True):
+            if(self.FlagMode ):
                 self.setFlag(row,col)
                 return
 
