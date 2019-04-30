@@ -13,7 +13,7 @@ def playVisualGame():
     while True:
         
         print("Starting game")  
-        gb = GameBoard(16,16)
+        gb = GameBoard(16,16,True)
         gb.printGameBoard()
 
         sg.ChangeLookAndFeel('Dark')      
@@ -78,17 +78,10 @@ def playVisualGame():
 
     window.Close()
 
-if __name__ == "__main__":
-
-    print("Starting game")  
-    gb = GameBoard(16,16)
+def playCLIGame():
+    
+    gb = GameBoard(16,16,False)
     gb.printGameBoard()
-
-    # playVisualGame()
-
-
-
-
     while(gb.gamestate == gb.GAME_RUNNING):
         print("Please input your command in the following format: [row,col,flag(optional)]. Parenthesis are not required")
         user_input = input()
@@ -105,10 +98,32 @@ if __name__ == "__main__":
         
         row = None
         col = None
-        F = False
+        F = ""
         if(len(x) == 2):
             row,col = x
         else:
             row,col,F = x
-        gb.userInput(int(row),int(col))
+
+
+        if(len(F) > 0 and (F[0].lower() == 't' or F[0].lower() == 'f')):
+            gb.userInput(int(row),int(col),True)
+        else:
+            gb.userInput(int(row),int(col))
+
+
+
         gb.printGameBoard()
+if __name__ == "__main__":
+
+    print("Do you want to play a Visual Game? (If not the game with be command line based) : Y/N")
+    choice = input()
+    print(choice[0])
+    print("Starting game") 
+     
+    if(choice[0].lower() == 'y'):
+        playVisualGame()
+    else:
+        playCLIGame()
+
+
+

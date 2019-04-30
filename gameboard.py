@@ -198,6 +198,8 @@ class GameBoard:
 
     def setFlag(self,row,col):
         try:
+            if(self.__visibilityboard[row][col] == self.VIS_EXPOSED):
+                return self.PENALTY_MOVE
             if(self.__visibilityboard[row][col] == self.VIS_FLAGGED):
                 self.__visibilityboard[row][col] = self.VIS_UNKNOWN
                 return self.PENALTY_MOVE
